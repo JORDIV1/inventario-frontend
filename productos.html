@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Productos - Inventario</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/png" href="/icono.png" />
+    <link rel="stylesheet" href="/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="/css/styles.css" />
+  </head>
+  <body class="bg-light">
+    <div class="container py-4">
+      <nav
+        class="d-flex flex-wrap justify-content-between align-items-center mb-4"
+      >
+        <div class="me-3">
+          <h1 class="h4 mb-1">Productos</h1>
+          <p class="text-muted mb-0" id="productos-welcome">
+            Cargando usuario…
+          </p>
+        </div>
+
+        <div class="d-flex gap-2">
+          <a href="/dashboard.html" class="btn btn-outline-secondary btn-sm"
+            >← Panel de control</a
+          >
+          <button id="logout-btn" class="btn btn-outline-danger btn-sm">
+            Cerrar sesión
+          </button>
+        </div>
+      </nav>
+
+      <div class="card shadow-sm mb-4">
+        <div class="card-body">
+          <form id="filtros-form" class="row gy-3 gx-3 align-items-end">
+            <div class="col-12 col-md-5">
+              <label for="search" class="form-label mb-1">Buscar</label>
+              <input
+                type="search"
+                id="search"
+                class="form-control"
+                placeholder="Nombre o categoría…"
+                autocomplete="off"
+              />
+            </div>
+
+            <div class="col-6 col-md-3">
+              <label for="orderBy" class="form-label mb-1">Ordenar por</label>
+              <select id="orderBy" class="form-select">
+                <option value="createdAt" selected>Más recientes</option>
+                <option value="nombre">Nombre</option>
+                <option value="precioCents">Precio</option>
+                <option value="stock">Stock</option>
+                <option value="categoriaId">Categoría</option>
+                <option value="updatedAt">Actualizados</option>
+              </select>
+            </div>
+
+            <div class="col-6 col-md-2">
+              <label for="orderDir" class="form-label mb-1">Dirección</label>
+              <select id="orderDir" class="form-select">
+                <option value="DESC" selected>DESC</option>
+                <option value="ASC">ASC</option>
+              </select>
+            </div>
+
+            <div class="col-6 col-md-2">
+              <label for="pageSize" class="form-label mb-1">Límite</label>
+              <select id="pageSize" class="form-select">
+                <option value="10">10</option>
+                <option value="20" selected>20</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
+              </select>
+            </div>
+
+            <!-- Acción Crear admin -->
+            <div class="col-6 col-md-12 d-flex justify-content-md-end">
+              <button
+                id="btn-crear"
+                type="button"
+                class="btn btn-primary d-none"
+                data-role="admin-only"
+                data-bs-toggle="modal"
+                data-bs-target="#modalCrear"
+              >
+                + Crear producto
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Tabla -->
+      <div class="card shadow-sm">
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table
+              class="table table-hover align-middle mb-0"
+              id="tabla-productos"
+            >
+              <thead class="table-light">
+                <tr>
+                  <th style="width: 72px">ID</th>
+                  <th>Nombre</th>
+                  <th class="text-end" style="width: 140px">Precio</th>
+                  <th class="text-end" style="width: 120px">Stock</th>
+                  <th style="width: 200px">Categoría</th>
+                  <th class="text-end" style="width: 160px">Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="tbody-productos"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="d-flex justify-content-between align-items-center mt-3">
+        <div id="paging-info" class="text-muted small">Página 1</div>
+        <div class="btn-group">
+          <button id="btn-prev" class="btn btn-outline-secondary btn-sm">
+            Anterior
+          </button>
+          <button id="btn-next" class="btn btn-outline-secondary btn-sm">
+            Siguiente
+          </button>
+        </div>
+      </div>
+
+      <div
+        id="productos-alert"
+        class="alert alert-danger mt-3 d-none"
+        role="alert"
+      ></div>
+
+      <!-- Modal Crear (solo admin) -->
+      <div class="modal fade" id="modalCrear" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content">
+            <form id="form-crear">
+              <div class="modal-header">
+                <h5 class="modal-title">Crear producto</h5>
+                <button
+                  type="button"
+                  class="btn-close"
+                  data-bs-dismiss="modal"
+                  aria-label="Cerrar"
+                ></button>
+              </div>
+              <div class="modal-body">
+                <div class="mb-3">
+                  <label for="crear-nombre" class="form-label">Nombre</label>
+                  <input
+                    type="text"
+                    id="crear-nombre"
+                    class="form-control"
+                    required
+                  />
+                </div>
+                <div class="mb-3">
+                  <label for="crear-precio" class="form-label"
+                    >Precio (COP)</label
+                  >
+                  <input
+                    type="number"
+                    id="crear-precio"
+                    class="form-control"
+                    min="0"
+                    step="1"
+                    required
+                  />
+                </div>
+                <div class="mb-3">
+                  <label for="crear-stock" class="form-label">Stock</label>
+                  <input
+                    type="number"
+                    id="crear-stock"
+                    class="form-control"
+                    min="0"
+                    step="1"
+                    required
+                  />
+                </div>
+                <div class="mb-3">
+                  <label for="crear-categoria" class="form-label"
+                    >Categoría</label
+                  >
+                  <select id="crear-categoria" class="form-select"></select>
+                </div>
+                <div class="form-text">
+                  * Solo administradores pueden crear productos.
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button
+                  type="button"
+                  class="btn btn-light"
+                  data-bs-dismiss="modal"
+                >
+                  Cancelar
+                </button>
+                <button
+                  id="crear-guardar"
+                  type="submit"
+                  class="btn btn-primary d-none"
+                  data-role="admin-only"
+                >
+                  Guardar
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal Editar acciones admin-only abrirán este modal) -->
+      <div class="modal fade" id="modalEditar" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content">
+            <form id="form-editar">
+              <div class="modal-header">
+                <h5 class="modal-title">Editar producto</h5>
+                <button
+                  type="button"
+                  class="btn-close"
+                  data-bs-dismiss="modal"
+                  aria-label="Cerrar"
+                ></button>
+              </div>
+              <div class="modal-body">
+                <input type="hidden" id="editar-id" />
+                <div class="mb-3">
+                  <label for="editar-nombre" class="form-label">Nombre</label>
+                  <input
+                    type="text"
+                    id="editar-nombre"
+                    class="form-control"
+                    required
+                  />
+                </div>
+                <div class="mb-3">
+                  <label for="editar-precio" class="form-label"
+                    >Precio (COP)</label
+                  >
+                  <input
+                    type="number"
+                    id="editar-precio"
+                    class="form-control"
+                    min="0"
+                    step="1"
+                    required
+                  />
+                </div>
+                <div class="mb-3">
+                  <label for="editar-stock" class="form-label">Stock</label>
+                  <input
+                    type="number"
+                    id="editar-stock"
+                    class="form-control"
+                    min="0"
+                    step="1"
+                    required
+                  />
+                </div>
+                <div class="mb-3">
+                  <label for="editar-categoria" class="form-label"
+                    >Categoría</label
+                  >
+                  <select id="editar-categoria" class="form-select"></select>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button
+                  type="button"
+                  class="btn btn-light"
+                  data-bs-dismiss="modal"
+                >
+                  Cancelar
+                </button>
+                <button
+                  id="editar-guardar"
+                  type="submit"
+                  class="btn btn-primary d-none"
+                  data-role="admin-only"
+                >
+                  Guardar cambios
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script type="module" src="/src/pages/productosPage.js"></script>
+  </body>
+</html>

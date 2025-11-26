@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Crear Cuenta - Inventario</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/png" href="/icono.png" />
+    <link rel="stylesheet" href="/css/bootstrap.min.css" />
+
+    <link rel="stylesheet" href="/css/auth.css" />
+  </head>
+  <body class="auth-body">
+    <div class="auth-container">
+      <div class="auth-card">
+        <div class="auth-header text-center">
+          <h1 class="auth-title h4 mb-1">Crear cuenta</h1>
+          <p class="auth-subtitle text-muted mb-0">
+            Regístrate para acceder al sistema.
+          </p>
+        </div>
+
+        <!-- Alerta de error -->
+        <div id="register-alert" class="alert alert-danger d-none"></div>
+
+        <form id="form-register" novalidate>
+          <div class="mb-3">
+            <label class="form-label" for="reg-nombre">Nombre</label>
+            <input id="reg-nombre" type="text" class="form-control" required />
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label" for="reg-email">Email</label>
+            <input id="reg-email" type="email" class="form-control" required />
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label" for="reg-password">Contraseña</label>
+            <input
+              id="reg-password"
+              type="password"
+              class="form-control"
+              required
+            />
+            <div class="form-text">
+              Mínimo 10 caracteres, 1 mayúscula y 1 número.
+            </div>
+          </div>
+
+          <button
+            id="register-submit"
+            type="submit"
+            class="btn btn-primary auth-btn w-100"
+          >
+            Crear cuenta
+          </button>
+
+          <p class="mt-3 mb-0 text-center auth-footer-text">
+            ¿Ya tienes cuenta?
+            <a href="/login.html" class="auth-link">Inicia sesión</a>
+          </p>
+        </form>
+      </div>
+    </div>
+    <script type="module" src="/src/pages/registerPage.js"></script>
+  </body>
+</html>

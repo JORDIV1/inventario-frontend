@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/png" href="/icono.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>frontend</title>
+  </head>
+
+  <body>
+    <script type="module">
+      import { authService } from "/src/auth/authService.js";
+
+      (async () => {
+        try {
+          const user = await authService.loadSessionFromProfile();
+          if (user) {
+            window.location.replace("/dashboard.html");
+          } else {
+            window.location.replace("/login.html");
+          }
+        } catch {
+          window.location.replace("/login.html");
+        }
+      })();
+    </script>
+  </body>
+</html>

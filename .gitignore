@@ -1,0 +1,11 @@
+
+node_modules/
+dist/
+*.local
+*.log
+vite.config.timestamp-*.json
+.env
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

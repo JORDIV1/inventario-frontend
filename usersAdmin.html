@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Usuarios-Admin</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/png" href="/icono.png" />
+    <link rel="stylesheet" href="/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="/css/styles.css" />
+  </head>
+  <body class="bg-light">
+    <div class="container py-4">
+      <div
+        class="d-flex flex-wrap justify-content-between align-items-center mb-4"
+      >
+        <div class="me-3">
+          <h1 class="h4 mb-1">Usuarios</h1>
+          <p class="text-muted mb-0" id="usuarios-welcome">Cargando usuario…</p>
+        </div>
+
+        <div class="d-flex gap-2">
+          <a href="/dashboard.html" class="btn btn-outline-secondary btn-sm">
+            ← Panel de control
+          </a>
+          <button id="logout-btn" class="btn btn-outline-danger btn-sm">
+            Cerrar sesión
+          </button>
+        </div>
+      </div>
+
+      <!-- Filtros y Orden -->
+      <div class="card shadow-sm mb-4">
+        <div class="card-body">
+          <form id="filtros-form" class="row gy-3 gx-3 align-items-end">
+            <div class="col-12 col-md-4">
+              <label for="search" class="form-label mb-1">Buscar</label>
+              <input
+                type="search"
+                id="search"
+                class="form-control"
+                placeholder="Nombre o email…"
+                autocomplete="off"
+              />
+            </div>
+
+            <!-- Orden servidor -->
+            <div class="col-6 col-md-3">
+              <label for="orderBy" class="form-label mb-1">Ordenar por</label>
+              <select id="orderBy" class="form-select">
+                <option value="createdAt" selected>Creado</option>
+                <option value="updatedAt">Actualizado</option>
+                <option value="nombre">Nombre</option>
+                <option value="rolId">Rol</option>
+              </select>
+            </div>
+
+            <div class="col-6 col-md-2">
+              <label for="orderDir" class="form-label mb-1">Dirección</label>
+              <select id="orderDir" class="form-select">
+                <option value="DESC" selected>DESC</option>
+                <option value="ASC">ASC</option>
+              </select>
+            </div>
+
+            <div class="col-6 col-md-2">
+              <label for="pageSize" class="form-label mb-1">Límite</label>
+              <select id="pageSize" class="form-select">
+                <option value="10">10</option>
+                <option value="20" selected>20</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
+              </select>
+            </div>
+
+            <!-- Botón Crear admin -->
+            <div class="col-6 col-md-1 d-flex justify-content-md-end">
+              <button
+                id="btn-crear"
+                type="button"
+                class="btn btn-primary d-none"
+                data-role="admin-only"
+                data-bs-toggle="modal"
+                data-bs-target="#modalCrear"
+              >
+                + Crear
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Tabla -->
+      <div class="card shadow-sm">
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table
+              class="table table-hover align-middle mb-0"
+              id="tabla-usuarios"
+            >
+              <thead class="table-light">
+                <tr>
+                  <th style="width: 72px">ID</th>
+                  <th>Nombre</th>
+                  <th>Email</th>
+                  <th>Rol</th>
+                  <th>Creado</th>
+                  <th>Actualizado</th>
+                </tr>
+              </thead>
+              <tbody id="tbody-usuarios"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="d-flex justify-content-between align-items-center mt-3">
+        <div id="usuarios-paging-info" class="text-muted small">Página 1</div>
+        <div class="btn-group">
+          <button id="btn-prev" class="btn btn-outline-secondary btn-sm">
+            Anterior
+          </button>
+          <button id="btn-next" class="btn btn-outline-secondary btn-sm">
+            Siguiente
+          </button>
+        </div>
+      </div>
+
+      <div
+        id="usuarios-alert"
+        class="alert alert-danger mt-3 d-none"
+        role="alert"
+      ></div>
+
+      <!-- Modal Crear Usuario (Admin) -->
+      <div class="modal fade" id="modalCrear" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content">
+            <form id="form-crear">
+              <div class="modal-header">
+                <h5 class="modal-title">Crear usuario</h5>
+                <button
+                  type="button"
+                  class="btn-close"
+                  data-bs-dismiss="modal"
+                  aria-label="Cerrar"
+                ></button>
+              </div>
+              <div class="modal-body">
+                <div class="mb-3">
+                  <label for="crear-nombre" class="form-label">Nombre</label>
+                  <input
+                    type="text"
+                    id="crear-nombre"
+                    class="form-control"
+                    required
+                  />
+                </div>
+
+                <div class="mb-3">
+                  <label for="crear-email" class="form-label">Email</label>
+                  <input
+                    type="email"
+                    id="crear-email"
+                    class="form-control"
+                    required
+                  />
+                </div>
+                <div class="mb-3">
+                  <label for="crear-password" class="form-label"
+                    >Contraseña</label
+                  >
+                  <input
+                    type="password"
+                    id="crear-password"
+                    class="form-control"
+                    required
+                  />
+                  <div class="form-text">
+                    Mínimo 10 caracteres, 1 mayúscula y 1 número.
+                  </div>
+                </div>
+                <div class="mb-3">
+                  <label for="crear-rol" class="form-label">Rol</label>
+                  <select id="crear-rol" class="form-select" required>
+                    <option value="2" selected>Usuario</option>
+                    <option value="1">Administrador</option>
+                  </select>
+                </div>
+
+                <div class="form-text">
+                  * Solo administradores pueden crear usuarios.
+                </div>
+                <div id="create-alert" class="alert alert-danger d-none"></div>
+              </div>
+              <div class="modal-footer">
+                <button
+                  type="button"
+                  class="btn btn-light"
+                  data-bs-dismiss="modal"
+                >
+                  Cancelar
+                </button>
+                <button
+                  id="crear-guardar"
+                  type="submit"
+                  class="btn btn-primary d-none"
+                  data-role="admin-only"
+                >
+                  Guardar
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal Editar Usuario (Admin) -->
+      <div class="modal fade" id="modalEditar" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content">
+            <form id="form-editar">
+              <div class="modal-header">
+                <h5 class="modal-title">Editar usuario</h5>
+                <button
+                  type="button"
+                  class="btn-close"
+                  data-bs-dismiss="modal"
+                  aria-label="Cerrar"
+                ></button>
+              </div>
+              <div class="modal-body">
+                <input type="hidden" id="editar-id" />
+
+                <div class="mb-3">
+                  <label for="editar-nombre" class="form-label">Nombre</label>
+                  <input type="text" id="editar-nombre" class="form-control" />
+                </div>
+
+                <div class="mb-3">
+                  <label for="editar-email" class="form-label">Email</label>
+                  <input type="email" id="editar-email" class="form-control" />
+                </div>
+
+                <div class="mb-3">
+                  <label for="editar-rol" class="form-label">Rol</label>
+                  <select id="editar-rol" class="form-select" required>
+                    <option value="2">Usuario</option>
+                    <option value="1">Administrador</option>
+                  </select>
+                </div>
+                <div id="patch-alert" class="alert alert-danger d-none"></div>
+              </div>
+              <div class="modal-footer">
+                <button
+                  type="button"
+                  class="btn btn-light"
+                  data-bs-dismiss="modal"
+                >
+                  Cancelar
+                </button>
+                <button
+                  id="editar-guardar"
+                  type="submit"
+                  class="btn btn-primary d-none"
+                  data-role="admin-only"
+                >
+                  Guardar cambios
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script type="module" src="/src/pages/usersAdminPage.js"></script>
+  </body>
+</html>

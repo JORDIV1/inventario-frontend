@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Acceso no autorizado</title>
+    <link rel="icon" type="image/png" href="/400.png" />
+
+    <link rel="stylesheet" href="/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="/css/styles.css" />
+
+    <style>
+      .unauth-page {
+        min-height: 100vh;
+      }
+
+      .unauth-card {
+        max-width: 420px;
+        border-radius: 18px;
+      }
+    </style>
+  </head>
+  <body
+    class="bg-light d-flex align-items-center justify-content-center unauth-page"
+  >
+    <div class="card shadow-sm text-center p-4 unauth-card w-100">
+      <img
+        src="/guardian400.JPG"
+        alt="Guardia"
+        class="img-fluid mb-3"
+        style="max-height: 550px; width: 100%; object-fit: contain"
+      />
+
+      <h1 class="h4 mb-2">Acceso restringido</h1>
+      <p class="text-muted mb-3">
+        No tienes permisos para ver esta sección. Si crees que es un error,
+        contacta con el administrador.
+      </p>
+
+      <div class="d-flex flex-column gap-2">
+        <a href="/dashboard.html" class="btn btn-primary">
+          Volver al dashboard
+        </a>
+        <a href="/login.html" class="btn btn-outline-secondary btn-sm">
+          Iniciar sesión con otra cuenta
+        </a>
+      </div>
+    </div>
+  </body>
+</html>
