@@ -4,27 +4,27 @@ import * as bootstrap from "bootstrap";
 import { roleUI } from "../auth/roleUI.js";
 import { authService } from "../auth/authService.js";
 import { categoriasService } from "../auth/categoriasService.js";
+
 class ProductosPage {
   constructor() {
     this.welcome = document.getElementById("productos-welcome");
-
     // Filtros / búsqueda
     this.searchInput = document.getElementById("search");
     this.orderBySelect = document.getElementById("orderBy");
     this.orderDirSelect = document.getElementById("orderDir");
     this.pageSizeSelect = document.getElementById("pageSize");
-
+    this.buttonCsv = document.getElementById("exportar-csv");
     // Tabla
     this.tableBody = document.getElementById("tbody-productos");
 
     // Paginación
     this.btnPrev = document.getElementById("btn-prev");
     this.btnNext = document.getElementById("btn-next");
-
+    this.pagingInfo = document.getElementById("paging-info");
     // Alertas y logout
     this.alertBox = document.getElementById("productos-alert");
     this.logoutBtn = document.getElementById("logout-btn");
-
+    this.createAlertModal = document.getElementById("modal-crear-alert");
     // Modales y formularios
     this.modalCrearEl = document.getElementById("modalCrear");
     this.modalEditarEl = document.getElementById("modalEditar");
@@ -36,9 +36,10 @@ class ProductosPage {
     this.crearPrecioInput = document.getElementById("crear-precio");
     this.crearStockInput = document.getElementById("crear-stock");
     this.crearCategoriaSelect = document.getElementById("crear-categoria");
-
+    this.crearNota = document.getElementById("crear-nota");
     // Inputs editar
     this.editarIdInput = document.getElementById("editar-id");
+    this.editarNota = document.getElementById("editar-nota");
     this.editarNombreInput = document.getElementById("editar-nombre");
     this.editarPrecioInput = document.getElementById("editar-precio");
     this.editarStockInput = document.getElementById("editar-stock");
@@ -54,6 +55,7 @@ class ProductosPage {
 
     this.currentUser = null;
     this.searchTerm = "";
+    this.localItems = [];
   }
 
   async init() {
@@ -71,14 +73,10 @@ class ProductosPage {
       const limit = Number(this.pageSizeSelect.value || 10);
 
       productosService.setOrdering({ orderBy, orderDir, limit });
-      //eventos
-      await this.loadCategoriesOptions();
+
       this.bindEvents();
-      //cargar
       await this.loadAndRenderPage(1);
     } catch (error) {
-      //quitar despues
-      console.error(error);
       this.showError("No se pudieron cargar los productos.");
     }
   }
@@ -86,6 +84,16 @@ class ProductosPage {
     const nombre = user.nombre;
     const rol = user.esAdmin() ? "Admin" : "Usuario";
     this.welcome.textContent = `Hola ${nombre} Rol - ${rol}`;
+  }
+  handleExportCsv() {
+    const url = productosService.exportToCSV();
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "";
+    a.style.display = "none";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
   }
   bindEvents() {
     if (this.logoutBtn) {
@@ -100,7 +108,7 @@ class ProductosPage {
     // Búsqueda  por nombre/categoría
     if (this.searchInput) {
       this.searchInput.addEventListener("input", () => {
-        this.searchTerm = this.searchInput.value.trim().toLowerCase();
+        this.searchTerm = this.searchInput.value;
         this.applyLocalFilter();
       });
     }
@@ -142,18 +150,21 @@ class ProductosPage {
         try {
           const dto = this.getCrearDTO();
 
-          //prueba fallo boostrap
-
           await productosService.create(dto);
 
           await this.loadAndRenderPage(1);
           this.formCrear.reset();
           if (this.modalCrear) this.modalCrear.hide();
-          //////////
+          this.hideCreateAlert();
         } catch (err) {
+          const msg = err?.message;
+          switch (msg) {
+            case "PRODUCT_NAME_TOO_SHORT":
+              return this.showCreateAlert(
+                "El nombre del producto es muy corto."
+              );
+          }
           this.showError("No se pudo crear el producto.");
-          // } finally {
-          //   window.location.reload();
         }
       });
     }
@@ -167,6 +178,7 @@ class ProductosPage {
         }
         try {
           const dto = this.getEditarDTO();
+
           await productosService.patch(id, dto);
 
           await this.loadAndRenderPage(productosService.page);
@@ -174,7 +186,6 @@ class ProductosPage {
           this.clearError();
           this.applyLocalFilter();
         } catch (err) {
-          console.error(err);
           this.showError("No se pudo actualizar el producto.");
         }
       });
@@ -202,13 +213,24 @@ class ProductosPage {
           }
           try {
             await productosService.remove(id);
-            this.clearError();
-            this.applyLocalFilter();
             await this.loadAndRenderPage(productosService.page);
           } catch (err) {
+            const msg = err.message;
+            switch (msg) {
+              case "PRODUCT_HAS_MOVEMENTS":
+                return alert(
+                  `Producto con el id:${id} tiene movimientos, no se puede eliminar`
+                );
+            }
             this.showError("No se pudo eliminar el producto.");
           }
         }
+      });
+    }
+
+    if (this.buttonCsv) {
+      this.buttonCsv.addEventListener("click", () => {
+        this.handleExportCsv();
       });
     }
   }
@@ -217,74 +239,104 @@ class ProductosPage {
     this.clearError();
     try {
       await productosService.loadPage(page);
-      this.renderTable();
-      this.updatePagingButtons();
+      this.localItems = [...productosService.items];
       this.applyLocalFilter();
+      this.pagingInfo.textContent = `Página ${productosService.page} `;
+      this.updatePagingButtons();
     } catch (err) {
       this.showError("Error al cargar los productos.");
     }
   }
-  renderTable() {
+  renderTable(items) {
     if (!this.tableBody) return;
-    const items = productosService.items || [];
+    // Limpiar siempre la tabla antes de pintar
+    this.tableBody.innerHTML = "";
+    // Caso sin productos
     if (!items.length) {
-      this.tableBody.innerHTML = `
-       <tr>
-        <td colspan="6" class="text-center text-muted py-4">
-            No hay productos para mostrar.
-         </td>
-        </tr>    
-       `;
+      const tr = document.createElement("tr");
+      const td = document.createElement("td");
+      td.colSpan = 6;
+      td.className = "text-center text-muted py-4";
+      td.textContent = "No hay productos para mostrar.";
+      tr.appendChild(td);
+      this.tableBody.appendChild(tr);
       return;
     }
-    const rowsHtml = items
-      .map((p) => {
-        const precioNumber = Number(p.precioCents ?? 0) / 100;
-        const precioCo = new Intl.NumberFormat("es-CO", {
-          style: "currency",
-          currency: "COP",
-        }).format(precioNumber);
 
-        const categoria =
-          p.categoriaNombre ??
-          (p.categoriaId != null ? String(p.categoriaId) : "Sin categoría");
+    const fragment = document.createDocumentFragment();
 
-        return `
-      <tr data-id="${p.id}">
-        <td>${p.id}</td>
-        <td class="col-nombre">${p.nombre}</td>
-        <td class="text-end">${precioCo}</td>
-        <td class="text-end">${p.stock}</td>
-        <td class="col-categoria">${categoria}</td>
-        <td class="text-end">
-         <div class="btn-group btn-group-sm">
-            <button
-              type="button"
-              class="btn btn-outline-primary d-none"
-              data-role="admin-only"
-              data-action="edit"
-              data-bs-toggle="modal"
-              data-bs-target="#modalEditar"
-               >
-                Editar
-              </button>
-              <button
-               type="button"
-               class="btn btn-outline-danger d-none"
-               data-role="admin-only"
-               data-action="delete"
-                >
-                  Eliminar
-                </button>
-              </div>
-          </td>
-        </tr>      
-      `;
-      })
-      .join("");
-    this.tableBody.innerHTML = rowsHtml;
+    for (const p of items) {
+      const tr = document.createElement("tr");
+      tr.dataset.id = String(p.id);
 
-    // Reaplicar rol a los botones recién pintados
+      // ID
+      const tdId = document.createElement("td");
+      tdId.textContent = String(p.id);
+      tr.appendChild(tdId);
+
+      // Nombre
+      const tdNombre = document.createElement("td");
+      tdNombre.className = "col-nombre";
+      tdNombre.textContent = p.nombre ?? "";
+      tr.appendChild(tdNombre);
+
+      // Precio formateado COP
+      const tdPrecio = document.createElement("td");
+      tdPrecio.className = "text-end";
+      const precioNumber = Number(p.precioCents ?? 0) / 100;
+      const precioCo = new Intl.NumberFormat("es-CO", {
+        style: "currency",
+        currency: "COP",
+      }).format(precioNumber);
+      tdPrecio.textContent = precioCo;
+      tr.appendChild(tdPrecio);
+
+      // Stock
+      const tdStock = document.createElement("td");
+      tdStock.className = "text-end";
+      tdStock.textContent = String(p.stock ?? 0);
+      tr.appendChild(tdStock);
+
+      // Categoría (texto)
+      const tdCategoria = document.createElement("td");
+      tdCategoria.className = "col-categoria";
+      const categoria =
+        p.categoriaNombre ??
+        (p.categoriaId != null ? String(p.categoriaId) : "Sin categoría");
+      tdCategoria.textContent = categoria;
+      tr.appendChild(tdCategoria);
+
+      // Acciones
+      const tdAcciones = document.createElement("td");
+      tdAcciones.className = "text-end";
+      const btnGroup = document.createElement("div");
+      btnGroup.className = "btn-group btn-group-sm";
+
+      const btnEdit = document.createElement("button");
+      btnEdit.type = "button";
+      btnEdit.className = "btn btn-outline-primary d-none";
+      btnEdit.dataset.role = "admin-only";
+      btnEdit.dataset.action = "edit";
+      btnEdit.textContent = "Editar";
+
+      const btnDelete = document.createElement("button");
+      btnDelete.type = "button";
+      btnDelete.className = "btn btn-outline-danger d-none";
+      btnDelete.dataset.role = "admin-only";
+      btnDelete.dataset.action = "delete";
+      btnDelete.textContent = "Eliminar";
+
+      btnGroup.appendChild(btnEdit);
+      btnGroup.appendChild(btnDelete);
+      tdAcciones.appendChild(btnGroup);
+      tr.appendChild(tdAcciones);
+
+      fragment.appendChild(tr);
+    }
+
+    this.tableBody.appendChild(fragment);
+
+    // Reaplicar roles a los botones recién pintados
     if (this.currentUser) {
       roleUI.apply(this.currentUser);
     }
@@ -298,28 +350,38 @@ class ProductosPage {
     }
   }
   applyLocalFilter() {
-    if (!this.tableBody) return;
     const term = this.searchTerm.trim().toLowerCase();
-    const rows = Array.from(this.tableBody.querySelectorAll("tr"));
+    const base = this.localItems || [];
+
     if (!term) {
-      rows.forEach((row) => row.classList.remove("filtered-out"));
+      this.renderTable(base);
       return;
     }
 
-    rows.forEach((row) => {
-      const nombre =
-        row.querySelector(".col-nombre")?.textContent.trim().toLowerCase() ||
-        "";
-      const categoria =
-        row.querySelector(".col-categoria")?.textContent.trim().toLowerCase() ||
-        "";
-      const match = nombre.includes(term) || categoria.includes(term);
-      if (match) {
-        row.classList.remove("filtered-out");
-      } else {
-        row.classList.add("filtered-out");
-      }
+    const filtrado = base.filter((p) => {
+      const nombre = String(p.nombre ?? "")
+        .trim()
+        .toLowerCase();
+      const categoria = String(
+        p.categoriaNombre ??
+          (p.categoriaId != null ? p.categoriaId : "sin categoría")
+      )
+        .trim()
+        .toLowerCase();
+
+      return nombre.includes(term) || categoria.includes(term);
     });
+
+    this.renderTable(filtrado);
+  }
+
+  showCreateAlert(message) {
+    this.createAlertModal.textContent = message;
+    this.createAlertModal.classList.remove("d-none");
+  }
+  hideCreateAlert() {
+    this.createAlertModal.textContent = "";
+    this.createAlertModal.classList.add("d-none");
   }
   showError(message) {
     if (!this.alertBox) return;
@@ -354,11 +416,18 @@ class ProductosPage {
     const stock = Number(this.crearStockInput.value ?? 0);
     const categoriaIdValue = this.crearCategoriaSelect.value ?? "";
     const categoriaId = categoriaIdValue ? Number(categoriaIdValue) : null;
+    const nota = this.crearNota.value?.trim() || null;
     if (!nombre || precioRaw < 0 || stock < 0) {
       throw new Error("PRODUCT_CREATE_INVALID_INPUT");
     }
     const precioCents = Math.round(precioRaw * 100);
-    return { nombre, precioCents, stock, categoriaId };
+    return {
+      nombre,
+      precioCents,
+      stock,
+      categoriaId,
+      nota,
+    };
   }
   getEditarDTO() {
     const nombre = this.editarNombreInput?.value.trim();
@@ -366,19 +435,17 @@ class ProductosPage {
     const stock = Number(this.editarStockInput?.value ?? 0);
     const categoriaIdValue = this.editarCategoriaSelect?.value ?? "";
     const categoriaId = categoriaIdValue ? Number(categoriaIdValue) : null;
+    const nota = this.editarNota.value?.trim() || null;
     if (!nombre || precioRaw < 0 || stock < 0) {
       throw new Error("PRODUCT_UPDATE_INVALID_INPUT");
     }
     const precioCents = Math.round(precioRaw * 100);
-    return { nombre, precioCents, stock, categoriaId };
+    return { nombre, precioCents, stock, categoriaId, nota };
   }
   async loadCategoriesOptions() {
     await categoriasService.loadPage(1);
 
     const categorias = categoriasService.items || [];
-    if (!categorias.length) {
-      return;
-    }
 
     const buildOptionsFragment = () => {
       const fragment = document.createDocumentFragment();

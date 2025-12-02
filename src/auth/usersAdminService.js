@@ -93,9 +93,14 @@ class UsersAdmin {
   }
   async remove(id) {
     const res = await usersApi.remove(id);
+
+    if (res.data?.error === "USER_IN_USE") {
+      throw new Error("USER_IN_USE");
+    }
     if (!res.ok) {
       throw new Error("USER_DELETE_FAILED");
     }
+    return true;
   }
 }
 

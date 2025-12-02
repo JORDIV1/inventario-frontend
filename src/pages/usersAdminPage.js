@@ -1,8 +1,9 @@
-import { authGuard } from "../auth/authGuard";
-import { authService } from "../auth/authService";
-import { roleUI } from "../auth/roleUI";
-import { usersAdmin } from "../auth/usersAdminService";
+import { authGuard } from "../auth/authGuard.js";
+import { authService } from "../auth/authService.js";
+import { roleUI } from "../auth/roleUI.js";
+import { usersAdmin } from "../auth/usersAdminService.js";
 import * as bootstrap from "bootstrap";
+
 class UsersAdminPage {
   constructor() {
     // Header
@@ -56,7 +57,7 @@ class UsersAdminPage {
     // Estado
     this.currentUser = null;
     this.searchTerm = "";
-    this.localItems = []; // copia de usersService.items para filtro local
+    this.localItems = [];
   }
   renderWelcome(user) {
     const nombre = user.nombre ?? "Usuario";
@@ -96,6 +97,7 @@ class UsersAdminPage {
       const limit = Number(this.pageSizeSelect.value || 20);
 
       usersAdmin.setOrdering({ orderBy, orderDir, limit });
+
       this.bindEvents();
       await this.loadAndRender(1);
     } catch (err) {
@@ -104,15 +106,13 @@ class UsersAdminPage {
   }
   async loadAndRender(page) {
     this.hideError();
-
     try {
       await usersAdmin.loadPage(page);
       this.localItems = [...usersAdmin.items];
-      this.renderTable(this.localItems);
       this.applyLocalFilter();
       this.updatePagingButtons();
+      this.pagingInfo.textContent = `Página ${usersAdmin.page}`;
     } catch (err) {
-      console.error(err);
       this.showError("Error al cargar los usuarios");
     }
   }
@@ -258,14 +258,12 @@ class UsersAdminPage {
           const dto = this.getEditarDTO();
 
           await usersAdmin.updatedPartial(id, dto);
-          this.loadAndRender(usersAdmin.page);
+          await this.loadAndRender(usersAdmin.page);
           if (this.modalEditar) {
             this.modalEditar.hide();
           }
         } catch (err) {
           const code = err?.message;
-          console.error(code);
-
           switch (code) {
             case "EMAIL_TAKEN":
               this.showErrorModalPatch("Email ya existe");
@@ -304,9 +302,16 @@ class UsersAdminPage {
           try {
             await usersAdmin.remove(id);
             await this.loadAndRender(usersAdmin.page);
-          } catch (error) {
-            console.error(error);
+          } catch (err) {
+            const msg = err.message;
 
+            switch (msg) {
+              case "USER_IN_USE":
+                alert(
+                  `Usuario con id: ${id} tiene movimientos, no se puede eliminar`
+                );
+                return;
+            }
             this.showError("No se pudo eliminar el usuario.");
           }
         }
@@ -321,7 +326,6 @@ class UsersAdminPage {
     this.editarNombreInput.value = usuario.nombre;
     this.editarEmailInput.value = usuario.email;
     this.modalEditar.show();
-    this.hideError();
   }
   renderTable(items) {
     if (!this.tableBody) return;
@@ -390,8 +394,6 @@ class UsersAdminPage {
       btnEdit.className = "btn btn-outline-primary d-none";
       btnEdit.dataset.role = "admin-only";
       btnEdit.dataset.action = "edit";
-      btnEdit.dataset.bsToggle = "modal";
-      btnEdit.dataset.bsTarget = "#modalEditar";
       btnEdit.textContent = "Editar";
 
       const btnDelete = document.createElement("button");

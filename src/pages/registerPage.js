@@ -46,15 +46,12 @@ class RegisterPage {
     this.hideError();
     try {
       const dto = this.getRegisterDTO();
-      console.log(dto);
-
       this.setLoading(true);
       const user = await authService.register(dto);
       if (user) {
         window.location.replace("/dashboard.html");
       }
     } catch (err) {
-      console.error(err);
       switch (err.message) {
         case "INVALID_NAME":
           this.showError("El nombre debe tener al menos 3 caracteres.");
@@ -94,7 +91,4 @@ class RegisterPage {
   }
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-  const registerPage = new RegisterPage();
-  registerPage.init();
-});
+new RegisterPage().init();

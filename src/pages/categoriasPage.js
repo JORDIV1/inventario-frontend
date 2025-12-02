@@ -13,12 +13,11 @@ class CategoriasPage {
     // Paginación
     this.btnPrev = document.getElementById("btn-prev");
     this.btnNext = document.getElementById("btn-next");
-    this.pagingInfo = document.getElementById("categorias-paging-info");
+    this.pagingInfo = document.getElementById("paging-info");
 
     // Alertas y logout
     this.alertBox = document.getElementById("categorias-alert");
     this.logoutBtn = document.getElementById("logout-btn");
-
     // Modales y formularios
     this.modalCrearEl = document.getElementById("modalCrear");
     this.modalEditarEl = document.getElementById("modalEditar");
@@ -32,10 +31,6 @@ class CategoriasPage {
     this.editarIdInput = document.getElementById("editar-id");
     this.editarNombreInput = document.getElementById("editar-nombre");
 
-    // Instancias Bootstrap
-    this.modalCrear = new bootstrap.Modal(this.modalCrearEl);
-    this.modalEditar = new bootstrap.Modal(this.modalEditarEl);
-
     // Filtros
     this.searchInput = document.getElementById("search");
     this.orderBySelect = document.getElementById("orderBy");
@@ -46,11 +41,11 @@ class CategoriasPage {
     this.searchTerm = "";
 
     this.modalCrear = this.modalCrearEl
-      ? bootstrap.Modal.getOrCreateInstance(this.modalCrearEl)
+      ? new bootstrap.Modal(this.modalCrearEl)
       : null;
 
     this.modalEditar = this.modalEditarEl
-      ? bootstrap.Modal.getOrCreateInstance(this.modalEditarEl)
+      ? new bootstrap.Modal(this.modalEditarEl)
       : null;
   }
 
@@ -82,17 +77,17 @@ class CategoriasPage {
 
       //renderizar
       this.renderTable();
+      this.pagingInfo.textContent = `Página ${categoriasService.page}`;
       this.applyLocalFilter();
       this.updatePagingButtons();
     } catch (error) {
-      console.error(error);
       this.showError("Error al cargar las categorias");
     }
   }
   renderTable() {
     if (!this.tableBody) return;
     const items = categoriasService.items || [];
-    //limpiar siempre
+
     this.tableBody.innerHTML = "";
     if (!items.length) {
       const tr = document.createElement("tr");
@@ -146,8 +141,6 @@ class CategoriasPage {
       btnEdit.className = "btn btn-outline-primary d-none";
       btnEdit.dataset.role = "admin-only";
       btnEdit.dataset.action = "edit";
-      btnEdit.dataset.bsToggle = "modal";
-      btnEdit.dataset.bsTarget = "#modalEditar";
       btnEdit.textContent = "Editar";
 
       //boton eliminar
@@ -302,7 +295,6 @@ class CategoriasPage {
           this.formCrear.reset();
           if (this.modalCrear) this.modalCrear.hide();
         } catch (err) {
-          console.error(err);
           this.showError("No se pudo crear la categoria.");
         }
       });
@@ -321,7 +313,6 @@ class CategoriasPage {
           await this.loadAndRenderPage(categoriasService.page);
           if (this.modalEditar) this.modalEditar.hide();
         } catch (err) {
-          console.error(err);
           this.showError("No se pudo actualizar categoria");
         }
       });
@@ -335,7 +326,6 @@ class CategoriasPage {
         const row = target.closest("tr");
         const idAttr = row?.dataset.id;
         const id = idAttr ? Number(idAttr) : null;
-     
 
         if (!action || !id) return;
 
@@ -351,7 +341,7 @@ class CategoriasPage {
           try {
             await categoriasService.remove(id);
             await this.loadAndRenderPage(categoriasService.page);
-          } catch (error) {
+          } catch (err) {
             this.showError("No se pudo eliminar la categoria.");
           }
         }

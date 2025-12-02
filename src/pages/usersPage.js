@@ -19,7 +19,7 @@ export class UsersPage {
     // Paginación
     this.btnPrev = document.getElementById("btn-prev");
     this.btnNext = document.getElementById("btn-next");
-    this.pagingInfo = document.getElementById("usuarios-paging-info");
+    this.pagingInfo = document.getElementById("paging-info");
 
     // Alert y logout
     this.alertBox = document.getElementById("usuarios-alert");
@@ -74,8 +74,8 @@ export class UsersPage {
       this.localItems = [...usersService.items];
       this.applyLocalFilter();
       this.updatePagingButtons();
+      this.pagingInfo.textContent = `Página ${usersService.page}`;
     } catch (err) {
-      console.error(err);
       this.showError("Error cargando usuarios.");
     }
   }

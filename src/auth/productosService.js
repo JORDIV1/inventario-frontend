@@ -51,7 +51,6 @@ class ProductosService {
       throw new Error("PRODUCTS_LIST_INVALID_RESPONSE");
     }
     this.items = payload.items;
-   
 
     this.meta = payload.meta;
     return {
@@ -62,13 +61,20 @@ class ProductosService {
   /**
    * Crear producto
    */
-  async create({ nombre, precioCents, stock, categoriaId }) {
+
+  async create({ nombre, precioCents, stock, categoriaId, nota }) {
     const res = await productosApi.create({
       nombre: nombre,
       precioCents: precioCents,
       stock: stock,
       categoriaId: categoriaId,
+      nota,
     });
+    console.warn(res.data);
+
+    if (res.data?.error === "PRODUCT_NAME_TOO_SHORT") {
+      throw new Error("PRODUCT_NAME_TOO_SHORT");
+    }
     if (!res.ok) {
       throw new Error("PRODUCT_CREATE_FAILED");
     }
@@ -76,25 +82,54 @@ class ProductosService {
   /**
    * Actualizar producto (PATCH) y recargar página actual.
    */
-  async patch(id, { nombre, precioCents, stock, categoriaId }) {
+  async patch(id, { nombre, precioCents, stock, categoriaId, nota }) {
     const res = await productosApi.patch(id, {
       nombre: nombre,
       precioCents: precioCents,
       stock: stock,
       categoriaId: categoriaId,
+      nota,
     });
+    console.log(res);
 
     if (!res.ok) {
       throw new Error("PRODUCT_UPDATE_FAILED");
     }
-    //mfsma pagina
-    await this.loadPage(this.page);
   }
   async remove(id) {
     const res = await productosApi.remove(id);
+    const code = res.data?.error;
+
+    if (code === "PRODUCT_IN_USE") {
+      throw new Error("PRODUCT_HAS_MOVEMENTS");
+    }
+
     if (!res.ok) {
       throw new Error("PRODUCT_DELETE_FAILED");
     }
+  }
+  async topMasCaros() {
+    const res = await productosApi.getTopMasCaros({ limit: 5 });
+    if (!res.ok) {
+      throw new Error("PRODUCT_TOP_CAROS_FAILED");
+    }
+    const payload = res.data;
+
+    return payload.items;
+  }
+
+  async TopValorTotal() {
+    const res = await productosApi.getTopValorTotal({ limit: 5 });
+
+    if (!res.ok) {
+      throw new Error("PRODUCT_TOP_VALOR_TOTAL_FAILED");
+    }
+    const payload = res.data;
+
+    return payload.items;
+  }
+  exportToCSV() {
+    return productosApi.getExportCsv();
   }
 }
 

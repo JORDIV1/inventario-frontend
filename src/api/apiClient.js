@@ -1,4 +1,4 @@
-const DEFAULT_BASE_URL =
+export const DEFAULT_BASE_URL =
   import.meta.env.VITE_API_URL ?? "http://localhost:3000";
 
 export class ApiClient {
@@ -10,7 +10,7 @@ export class ApiClient {
       throw new Error("API_BASE_URL_REQUIRED");
     }
 
-    //quita los / al final
+    //quita los "/" al final
     this.#baseUrl = baseUrl.replace(/\/+$/, "");
   }
 
@@ -87,8 +87,7 @@ export class ApiClient {
   }
   /**
    * Método central, hace la request, intenta refresh en 401
-   * vuelve a intentar una vez y devuelve
-   * { ok, status, data }.
+   * vuelve a intentar una vez y devuelve { ok, status, data }.
    */
   async #request(method, path, { body, headers, params } = {}) {
     const { url, normalizedPath } = this.#buildUrl(path);

@@ -13,79 +13,124 @@
     />
   </head>
   <body class="bg-light">
-    <div class="container py-5">
-      <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-          <h1 class="h3 mb-1">Panel de control</h1>
-          <p class="text-muted mb-0" id="dashboard-welcome">
-            Cargando usuario...
-          </p>
-        </div>
-        <button id="logout-btn" class="btn btn-outline-danger btn-sm">
-          Cerrar sesión
-        </button>
-      </div>
-
-      <!-- Tarjetas de navegación -->
-      <div class="row g-4">
-        <div class="col-md-4">
-          <a href="/productos.html" class="text-decoration-none">
-            <div class="card shadow-sm h-100">
-              <div class="card-body text-center">
-                <h2 class="h5 mb-2">Productos</h2>
-              </div>
-            </div>
-          </a>
+    <div class="dashboard-layout d-flex min-vh-100">
+      <aside class="dashboard-sidebar d-flex flex-column">
+        <div class="sidebar-brand d-flex align-items-center mb-4">
+          <img src="/icono.png" alt="gestioncom" class="sidebar-logo me-2" />
+          <span class="sidebar-brand-text">gestioncom</span>
         </div>
 
-        <!-- Usuarios  -->
-        <div class="col-md-4">
-          <a href="/usersCard.html" class="text-decoration-none">
-            <div class="card shadow-sm h-100">
-              <div class="card-body text-center">
-                <h2 class="h5 mb-2">Usuarios</h2>
-              </div>
-            </div>
+        <nav class="sidebar-nav flex-grow-1" aria-label="Navegación principal">
+          <a href="/dashboard.html" class="sidebar-link active">
+            <i class="bi bi-speedometer2 me-2"></i> Panel
           </a>
-        </div>
-
-        <!-- Categorías -->
-        <div class="col-md-4">
-          <a href="/categorias.html" class="text-decoration-none">
-            <div class="card shadow-sm h-100">
-              <div class="card-body text-center">
-                <h2 class="h5 mb-2">Categorías</h2>
-              </div>
-            </div>
+          <a href="/productos.html" class="sidebar-link">
+            <i class="bi bi-box-seam me-2"></i> Productos
           </a>
-        </div>
-        <!-- Usuarios Admin  -->
-        <div class="col-md-4">
+          <a href="/categorias.html" class="sidebar-link">
+            <i class="bi bi-tags me-2"></i> Categorías
+          </a>
+          <a href="/usersCard.html" class="sidebar-link">
+            <i class="bi bi-people me-2"></i> Usuarios
+          </a>
+          <a href="/mov.html" class="sidebar-link">
+            <i class="bi bi-arrow-left-right me-2"></i> Movimientos
+          </a>
           <a
             href="/usersAdmin.html"
-            class="text-decoration-none d-none"
+            class="sidebar-link d-none"
             data-role="admin-only"
           >
-            <div class="card shadow-sm h-100">
-              <div class="card-body text-center">
-                <h2 class="h5 mb-2">Usuarios Admin</h2>
+            <i class="bi bi-shield-lock me-2"></i> Usuarios Admin
+          </a>
+        </nav>
+      </aside>
+
+      <main class="dashboard-main flex-grow-1">
+        <div
+          class="d-flex justify-content-between align-items-center mb-4 dashboard-header"
+        >
+          <div>
+            <h1 class="h3 mb-1">Panel de control</h1>
+            <p class="dashboard-welcome text-muted mb-0" id="dashboard-welcome">
+              Cargando usuario...
+            </p>
+          </div>
+          <button id="logout-btn" class="btn btn-outline-danger btn-sm">
+            Cerrar sesión
+          </button>
+        </div>
+
+        <div class="row g-4 mt-2">
+          <!-- Top 5 más caros -->
+          <div class="col-12 col-xl-6">
+            <div class="card chart-card h-100">
+              <div class="card-body">
+                <div
+                  class="d-flex justify-content-between align-items-center mb-3"
+                >
+                  <div>
+                    <h2 class="h6 mb-1">Top 5 productos más caros</h2>
+                    <p class="text-muted small mb-0">
+                      Ranking por precio unitario actual
+                    </p>
+                  </div>
+                  <span
+                    class="badge bg-primary-subtle text-primary-emphasis rounded-pill"
+                  >
+                    $ / unidad
+                  </span>
+                </div>
+
+                <div id="chart-top-caros" class="chart-container"></div>
               </div>
             </div>
-          </a>
+          </div>
+
+          <!-- Top 5 por valor total -->
+          <div class="col-12 col-xl-6">
+            <div class="card chart-card h-100">
+              <div class="card-body">
+                <div
+                  class="d-flex justify-content-between align-items-center mb-3"
+                >
+                  <div>
+                    <h2 class="h6 mb-1">Top 5 por valor total</h2>
+                    <p class="text-muted small mb-0">
+                      Productos con mayor valor en inventario
+                    </p>
+                  </div>
+                  <span
+                    class="badge bg-success-subtle text-success-emphasis rounded-pill"
+                  >
+                    Valor total
+                  </span>
+                </div>
+
+                <div id="chart-top-valor" class="chart-container"></div>
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
+
+        <div class="mt-4"></div>
+      </main>
     </div>
 
-    <script type="module" src="/src/pages/dashboardPage.js"></script>
-    <footer class="text-center mt-4 mb-2">
+    <footer class="dashboard-footer text-center py-3">
       <a
         class="footer-brand text-decoration-none"
         href="https://www.instagram.com/jordiv.1/"
         target="_blank"
+        rel="noopener noreferrer"
       >
-        © 2025 – Desarrollado por 💥Jordi Velasco <br />
-        <i class="bi bi-instagram me-1"></i>jordiv.1
+        © 2025 – Desarrollado por <span class="fw-semibold">Jordi Velasco</span>
+        <br />
+        <i class="bi bi-instagram me-1"></i>
+        <span>jordiv.1</span>
       </a>
     </footer>
+
+    <script type="module" src="/src/pages/dashboardPage.js"></script>
   </body>
 </html>

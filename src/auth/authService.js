@@ -2,7 +2,7 @@
  * AuthService
  *  - Usa cookies HttpOnly de forma implícita via ApiClient - fetch credentials: "include")
  *  - Mantiene en memoria al usuario autenticado (currentUser)
- *  - No toca tokens, no toca localStorage.
+ *  - No toca tokens ni localStorage.
  */
 
 import { authApi } from "../api/authApi.js";
@@ -118,7 +118,7 @@ export class AuthService {
    *  - GET /auth/profile con cookies.
    *  - Si 200 + { ok: true, user } set currentUser.
    *  - Si 401  - no hay sesión - currentUser = null.
-   *  - No redirige aquí; deja esa decisión a la capa que lo use (guards/UI).
+   *  - No redirige aquí; deja esa decisión a la capa que lo use guards/UI.
    */
   async loadSessionFromProfile() {
     if (this.#currentUser) return this.#currentUser;
@@ -153,5 +153,5 @@ export class AuthService {
     this.#currentUser = null;
   }
 }
-//singleton
+
 export const authService = new AuthService();

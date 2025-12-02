@@ -57,7 +57,6 @@ class LoginPage {
     try {
       const user = await authService.login({ email, password });
 
-      // Redirección simple según rol
       if (user) {
         window.location.replace("/dashboard.html");
       }
@@ -73,8 +72,4 @@ class LoginPage {
   }
 }
 
-// Inicializar cuando cargue el DOM
-document.addEventListener("DOMContentLoaded", () => {
-  const page = new LoginPage();
-  page.init();
-});
+new LoginPage().init();

@@ -9,6 +9,7 @@ export default defineConfig({
         dashboard: "dashboard.html",
         productos: "productos.html",
         categorias: "categorias.html",
+        movimientos: "mov.html",
         register: "register.html",
         unauthorized: "unauthorized.html",
         usersAdmin: "usersAdmin.html",
