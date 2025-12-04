@@ -26,7 +26,9 @@ class CategoriasPage {
 
     // Inputs crear
     this.crearNombreInput = document.getElementById("crear-nombre");
-
+    //botones
+    this.btnGuardarCrear = document.getElementById("crear-guardar");
+    this.btnGuardarEdit = document.getElementById("editar-guardar");
     // Inputs editar
     this.editarIdInput = document.getElementById("editar-id");
     this.editarNombreInput = document.getElementById("editar-nombre");
@@ -288,6 +290,12 @@ class CategoriasPage {
     if (this.formCrear) {
       this.formCrear.addEventListener("submit", async (e) => {
         e.preventDefault();
+
+        const btn = this.btnGuardarCrear;
+        if (btn) {
+          btn.disabled = true;
+          btn.textContent = "Creando...";
+        }
         try {
           const dto = this.getCrearDTO();
           await categoriasService.create(dto);
@@ -296,6 +304,11 @@ class CategoriasPage {
           if (this.modalCrear) this.modalCrear.hide();
         } catch (err) {
           this.showError("No se pudo crear la categoria.");
+        } finally {
+          if (btn) {
+            btn.disabled = false;
+            btn.textContent = "Guardar";
+          }
         }
       });
     }
@@ -306,6 +319,11 @@ class CategoriasPage {
         if (!id || id <= 0) {
           return;
         }
+        const btn = this.btnGuardarEdit;
+        if (btn) {
+          btn.disabled = true;
+          btn.textContent = "Guardando...";
+        }
         try {
           const dto = this.getEditarDTO();
 
@@ -314,6 +332,11 @@ class CategoriasPage {
           if (this.modalEditar) this.modalEditar.hide();
         } catch (err) {
           this.showError("No se pudo actualizar categoria");
+        } finally {
+          if (btn) {
+            btn.disabled = false;
+            btn.textContent = "Guardar cambios";
+          }
         }
       });
     }

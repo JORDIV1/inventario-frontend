@@ -37,6 +37,10 @@ class ProductosPage {
     this.crearStockInput = document.getElementById("crear-stock");
     this.crearCategoriaSelect = document.getElementById("crear-categoria");
     this.crearNota = document.getElementById("crear-nota");
+
+    //botones
+    this.btnGuardarCrear = document.getElementById("crear-guardar");
+    this.btnGuardarEdit = document.getElementById("editar-guardar");
     // Inputs editar
     this.editarIdInput = document.getElementById("editar-id");
     this.editarNota = document.getElementById("editar-nota");
@@ -147,6 +151,11 @@ class ProductosPage {
     if (this.formCrear) {
       this.formCrear.addEventListener("submit", async (e) => {
         e.preventDefault();
+        const btn = this.btnGuardarCrear;
+        if (btn) {
+          btn.disabled = true;
+          btn.textContent = "Creando...";
+        }
         try {
           const dto = this.getCrearDTO();
 
@@ -165,6 +174,11 @@ class ProductosPage {
               );
           }
           this.showError("No se pudo crear el producto.");
+        } finally {
+          if (btn) {
+            btn.disabled = false;
+            btn.textContent = "Guardar";
+          }
         }
       });
     }
@@ -176,6 +190,11 @@ class ProductosPage {
         if (!id || id <= 0) {
           return;
         }
+        const btn = this.btnGuardarEdit;
+        if (btn) {
+          btn.disabled = true;
+          btn.textContent = "Guardando...";
+        }
         try {
           const dto = this.getEditarDTO();
 
@@ -184,9 +203,13 @@ class ProductosPage {
           await this.loadAndRenderPage(productosService.page);
           if (this.modalEditar) this.modalEditar.hide();
           this.clearError();
-          this.applyLocalFilter();
         } catch (err) {
           this.showError("No se pudo actualizar el producto.");
+        } finally {
+          if (btn) {
+            btn.disabled = false;
+            btn.textContent = "Guardar cambios";
+          }
         }
       });
     }
@@ -195,6 +218,7 @@ class ProductosPage {
     if (this.tableBody) {
       this.tableBody.addEventListener("click", async (e) => {
         const target = e.target;
+
         if (!(target instanceof HTMLElement)) return;
         const action = target.dataset.action;
         const row = target.closest("tr");

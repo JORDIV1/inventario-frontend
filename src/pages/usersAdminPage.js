@@ -45,6 +45,9 @@ class UsersAdminPage {
     this.editarNombreInput = document.getElementById("editar-nombre");
     this.editarEmailInput = document.getElementById("editar-email");
     this.editarRolSelect = document.getElementById("editar-rol");
+    //botones
+    this.btnGuardarCrear = document.getElementById("crear-guardar");
+    this.btnGuardarEdit = document.getElementById("editar-guardar");
 
     // Instancias Bootstrap
     this.modalCrear = this.modalCrearEl
@@ -217,6 +220,11 @@ class UsersAdminPage {
     if (this.formCrear) {
       this.formCrear.addEventListener("submit", async (e) => {
         e.preventDefault();
+        const btn = this.btnGuardarCrear;
+        if (btn) {
+          btn.disabled = true;
+          btn.textContent = "Creando...";
+        }
         try {
           const dto = this.getCrearDTO();
           await usersAdmin.create(dto);
@@ -243,6 +251,11 @@ class UsersAdminPage {
             default:
               this.showErrorModalCreate("No se pudo crear el usuario.");
           }
+        } finally {
+          if (btn) {
+            btn.disabled = false;
+            btn.textContent = "Guardar";
+          }
         }
       });
     }
@@ -253,6 +266,11 @@ class UsersAdminPage {
         const id = Number(this.editarIdInput.value);
         if (!id || id <= 0) {
           return;
+        }
+        const btn = this.btnGuardarEdit;
+        if (btn) {
+          btn.disabled = true;
+          btn.textContent = "Guardando...";
         }
         try {
           const dto = this.getEditarDTO();
@@ -275,6 +293,11 @@ class UsersAdminPage {
               break;
             default:
               this.showErrorModalPatch("No se pudo actualizar el usuario.");
+          }
+        } finally {
+          if (btn) {
+            btn.disabled = false;
+            btn.textContent = "Guardar cambios";
           }
         }
       });
