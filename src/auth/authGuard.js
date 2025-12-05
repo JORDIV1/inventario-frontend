@@ -4,12 +4,14 @@ import { authService } from "./authService.js";
 class AuthGuard {
   async requireAuth({ redirectTo = "/login.html" } = {}) {
     let user;
-
     try {
       user = await authService.loadSessionFromProfile();
     } catch (err) {
-      window.location.replace(redirectTo);
-      return null;
+      if (err.network) {
+        alert("Conexión inestable, intenta de nuevo");
+        return null;
+      }
+      throw err;
     }
     if (!user) {
       window.location.replace(redirectTo);
@@ -22,7 +24,16 @@ class AuthGuard {
     redirectIfNoAuth = "/login.html",
     redirectIfNotAdmin = "/unauthorized.html",
   } = {}) {
-    const user = await authService.loadSessionFromProfile();
+    let user;
+    try {
+      user = await authService.loadSessionFromProfile();
+    } catch (err) {
+      if (err.network) {
+        alert("Conexión inestable, intenta de nuevo");
+        return null;
+      }
+      throw err;
+    }
     if (!user) {
       window.location.replace(redirectIfNoAuth);
       return null;

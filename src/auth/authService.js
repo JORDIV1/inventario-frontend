@@ -126,8 +126,10 @@ export class AuthService {
     try {
       res = await authApi.profile();
     } catch (err) {
-      this.#currentUser = null;
-      return null;
+      if (err.network) {
+        throw err;
+      }
+      throw err;
     }
     if (res.status === 401) {
       this.#currentUser = null;

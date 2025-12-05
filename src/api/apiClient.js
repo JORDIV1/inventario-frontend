@@ -31,8 +31,11 @@ export class ApiClient {
     try {
       const response = await fetch(url, config);
       return response;
-    } catch (error) {
-      throw new Error("NETWORK_ERROR");
+    } catch (err) {
+      const networkErr = new Error("NETWORK_ERROR");
+      networkErr.original = err;
+      networkErr.network = true;
+      throw networkErr;
     }
   }
   /**

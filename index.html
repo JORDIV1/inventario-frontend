@@ -19,8 +19,12 @@
           } else {
             window.location.replace("/login.html");
           }
-        } catch {
-          window.location.replace("/login.html");
+        } catch (err) {
+          if (err.network) {
+            alert("Conexión inestable, intenta de nuevo");
+            return null;
+          }
+          throw err;
         }
       })();
     </script>
