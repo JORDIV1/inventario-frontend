@@ -1,3 +1,4 @@
+import { DEFAULT_BASE_URL } from "../api/apiClient.js";
 import { authGuard } from "../auth/authGuard.js";
 import { authService } from "../auth/authService.js";
 import { usersService } from "../auth/usersService.js";
@@ -37,6 +38,7 @@ export class UsersPage {
       if (!user) return;
 
       this.currentUser = user;
+
       this.renderWelcome(user);
 
       const orderBy = this.orderBySelect.value || "createdAt";
@@ -76,6 +78,8 @@ export class UsersPage {
       this.updatePagingButtons();
       this.pagingInfo.textContent = `Página ${usersService.page}`;
     } catch (err) {
+      console.log(err);
+
       this.showError("Error cargando usuarios.");
     }
   }
@@ -116,16 +120,37 @@ export class UsersPage {
         </div>`;
       return;
     }
-
+    for (const user of items) {
+      user.avatarUrl = user.avatar
+        ? `${DEFAULT_BASE_URL}/usuarios/${user.id}/avatar?v=${Date.now()}`
+        : "/placeholder-avatar.png";
+    }
     const fragment = document.createDocumentFragment();
 
     for (const user of items) {
       const col = document.createElement("div");
-      col.className = "col";
+      col.className = "col-12 col-sm-6 col-md-4 col-lg-3 mb-4";
 
       const card = document.createElement("div");
-      card.className = "card shadow-sm h-100";
+      card.className = "card user-feed-card shadow-sm h-100";
 
+     
+      const imgWrapper = document.createElement("div");
+      imgWrapper.className = "user-feed-wrapper";
+
+      const img = document.createElement("img");
+  
+      img.className = user.avatar
+        ? "user-feed-img"
+        : "user-feed-img user-feed-img--placeholder";
+
+      img.src = user.avatarUrl;
+      img.alt = user.nombre;
+
+      imgWrapper.appendChild(img);
+      card.appendChild(imgWrapper);
+
+  
       const body = document.createElement("div");
       body.className = "card-body";
 
@@ -139,16 +164,14 @@ export class UsersPage {
 
       const fecha = document.createElement("p");
       fecha.className = "card-text small text-muted";
-      if (user.createdAt) {
-        fecha.textContent =
-          "Creado: " + new Date(user.createdAt).toLocaleDateString("es-CO");
-      } else {
-        fecha.textContent = "Creado: -";
-      }
+      fecha.textContent = user.createdAt
+        ? "Creado: " + new Date(user.createdAt).toLocaleDateString("es-CO")
+        : "Creado: -";
 
       body.appendChild(title);
       body.appendChild(rol);
       body.appendChild(fecha);
+
       card.appendChild(body);
       col.appendChild(card);
       fragment.appendChild(col);
@@ -158,7 +181,7 @@ export class UsersPage {
   }
 
   bindEvents() {
-    // Logout
+   
     if (this.logoutBtn) {
       this.logoutBtn.addEventListener("click", async () => {
         try {
@@ -169,7 +192,7 @@ export class UsersPage {
       });
     }
 
-    // Filtro
+  
     if (this.searchInput) {
       this.searchInput.addEventListener("input", () => {
         this.searchTerm = this.searchInput.value;

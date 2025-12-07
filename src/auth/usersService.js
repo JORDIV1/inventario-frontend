@@ -43,7 +43,6 @@ class UsersService {
       orderDir: this.meta.orderDir,
     });
 
-
     if (!res.ok) {
       throw new Error("USERS_LIST_FAILED");
     }
@@ -63,6 +62,21 @@ class UsersService {
       ...meta,
     };
     this.page = safePage;
+  }
+
+  async loadAvatar(file) {
+    if (!file) {
+      throw new Error("FILE_REQUIRED");
+    }
+
+    const res = await usersApi.createAvatar({ file });
+
+    if (!res.ok) {
+      throw new Error("USERS_AVATAR_FAILED");
+    }
+    const payload = res.data;
+
+    return payload;
   }
 }
 

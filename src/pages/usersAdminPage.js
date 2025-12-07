@@ -93,6 +93,7 @@ class UsersAdminPage {
       const user = await authGuard.requireAdmin();
       if (!user) return null;
       this.currentUser = user;
+      
       this.renderWelcome(user);
       roleUI.apply(user);
       const orderBy = this.orderBySelect.value || "createdAt";

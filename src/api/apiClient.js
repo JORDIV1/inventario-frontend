@@ -113,11 +113,13 @@ export class ApiClient {
       method,
       credentials: "include",
       headers: {
-        "Content-Type": "application/json",
         ...(headers || {}),
       },
     };
-    if (body !== undefined && body !== null) {
+    if (body instanceof FormData) {
+      config.body = body;
+    } else if (body !== undefined && body !== null) {
+      config.headers["Content-Type"] = "application/json";
       config.body = JSON.stringify(body);
     }
 

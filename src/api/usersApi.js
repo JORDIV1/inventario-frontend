@@ -27,6 +27,12 @@ class UsersApi {
     });
   }
 
+  async createAvatar({ file }) {
+    const formData = new FormData();
+    formData.append("avatar", file);
+    return apiClient.post("usuarios/me/avatar", formData);
+  }
+
   async remove(id) {
     return apiClient.delete(`usuarios/admin/${id}`);
   }

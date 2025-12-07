@@ -282,3 +282,102 @@ footer {
     margin-top: 0.25rem;
   }
 }
+
+/* Tarjeta del perfil */
+.perfil-card {
+  border-radius: 18px;
+  overflow: hidden;
+}
+
+/* Contenedor del avatar sin recorte agresivo */
+.perfil-feed-wrapper {
+  width: 100%;
+  max-height: auto;
+  overflow: hidden;
+  border-radius: 16px;
+  display: flex;
+  justify-content: center;
+}
+
+.perfil-feed-img {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  display: block;
+}
+/* Limitar ancho de la card en pantallas medianas/grandes */
+@media (min-width: 768px) {
+  .perfil-card {
+    max-width: 480px;
+    margin: 0 auto;
+  }
+}
+
+/* Texto del nombre del archivo */
+#avatarFilename {
+  max-width: 100%;
+}
+
+/* Ajuste para el input en móvil */
+@media (max-width: 576px) {
+  #avatarInput {
+    font-size: 0.85rem;
+  }
+}
+.btn-save-modern {
+  background: linear-gradient(135deg, #2a2e35, #7e90ac);
+  border: none;
+  color: #fff;
+  padding: 0.65rem 1.2rem;
+  border-radius: 12px;
+  font-weight: 500;
+  font-size: 0.95rem;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.btn-save-modern:hover {
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+  background: linear-gradient(135deg, #24272e, #6b7c96);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 15px rgba(126, 144, 172, 0.35);
+}
+
+.btn-save-modern:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+/*AQUI CARDS TIPO INSTAGRAM*/
+.user-feed-card {
+  border-radius: 18px;
+  overflow: hidden;
+  background: #ffffff;
+}
+
+/* Solo hace que el contenedor tenga bordes bonitos y recorte si se sale */
+.user-feed-wrapper {
+  max-width: 900px;
+  margin: 0 auto;
+}
+/* La imagen respeta su proporción original, sin forzar cuadrado */
+.user-feed-img {
+  max-width: 100%;
+  width: 100%;
+  height: auto;
+}
+
+/*boton de succes*/
+.alert-success {
+  background: linear-gradient(135deg, #1b2838, #4fc3f7);
+  border: none;
+  color: white;
+  font-weight: 500;
+  border-radius: 14px;
+  padding: 0.75rem 1rem;
+}
+
+.alert-success.fade-out {
+  opacity: 0;
+  transition: opacity 0.8s ease-out;
+}
