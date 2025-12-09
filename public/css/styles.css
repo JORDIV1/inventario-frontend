@@ -125,6 +125,47 @@ footer {
   font-size: 1rem;
   font-weight: 500;
 }
+/*CARTAS ADMIN TAMBIEN*/
+.user-role-admin {
+  position: relative;
+  z-index: 1;
+}
+
+/* aura alrededor */
+.user-role-admin::before {
+  content: "";
+  position: absolute;
+  inset: -7px; /* tamaño del halo */
+  border-radius: 999px;
+  background: radial-gradient(
+    circle at 30% 0,
+    rgba(214, 117, 72, 0.65),
+    transparent 200%
+  );
+  filter: blur(3px);
+  opacity: 0.9;
+  z-index: -1;
+}
+
+/* animación tipo “flama/pulso” */
+@keyframes adminPulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.85;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0.85;
+  }
+}
+
+.user-role-admin::before {
+  animation: adminPulse 2.2s ease-in-out infinite;
+}
 
 .card {
   border-radius: 1rem;
@@ -352,7 +393,6 @@ footer {
 .user-feed-card {
   border-radius: 18px;
   overflow: hidden;
-  background: #ffffff;
 }
 
 /* Solo hace que el contenedor tenga bordes bonitos y recorte si se sale */
@@ -380,4 +420,27 @@ footer {
 .alert-success.fade-out {
   opacity: 0;
   transition: opacity 0.8s ease-out;
+}
+
+/*vibracion botones likes*/
+.like-shake {
+  animation: likeShake 0.18s ease-in-out;
+}
+
+@keyframes likeShake {
+  0% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-1px);
+  }
+  50% {
+    transform: translateX(1px);
+  }
+  75% {
+    transform: translateX(-1px);
+  }
+  100% {
+    transform: translateX(0);
+  }
 }

@@ -78,6 +78,18 @@ class UsersService {
 
     return payload;
   }
+
+  async toggleLike({ targetId }) {
+    const res = await usersApi.toggleLike({ objetivoId: targetId });
+
+    if (!res.ok) {
+      throw new Error("USER_LIKE_FAILED");
+    }
+
+    const payload = res.data;
+
+    return payload;
+  }
 }
 
 export const usersService = new UsersService();

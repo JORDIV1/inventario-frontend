@@ -20,7 +20,7 @@ class UsersApi {
     });
   }
   async updatedPartial(id, { nombre, email, rolId }) {
-    return apiClient.patch(`usuarios/admin/${id}`, {
+    return apiClient.patch(`/usuarios/admin/${id}`, {
       nombre,
       email,
       rolId,
@@ -30,11 +30,13 @@ class UsersApi {
   async createAvatar({ file }) {
     const formData = new FormData();
     formData.append("avatar", file);
-    return apiClient.post("usuarios/me/avatar", formData);
+    return apiClient.post("/usuarios/me/avatar", formData);
   }
-
+  async toggleLike({ objetivoId }) {
+    return apiClient.post("/usuarios/likes/toggle", { objetivoId });
+  }
   async remove(id) {
-    return apiClient.delete(`usuarios/admin/${id}`);
+    return apiClient.delete(`/usuarios/admin/${id}`);
   }
 }
 

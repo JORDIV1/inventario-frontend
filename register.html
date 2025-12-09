@@ -24,21 +24,37 @@
         <form id="form-register" novalidate>
           <div class="mb-3">
             <label class="form-label" for="reg-nombre">Nombre</label>
-            <input id="reg-nombre" type="text" class="form-control" required />
+            <input
+              id="reg-nombre"
+              name="name"
+              type="text"
+              class="form-control"
+              required
+              autocomplete="name"
+            />
           </div>
 
           <div class="mb-3">
             <label class="form-label" for="reg-email">Email</label>
-            <input id="reg-email" type="email" class="form-control" required />
+            <input
+              id="reg-email"
+              name="email"
+              type="email"
+              class="form-control"
+              required
+              autocomplete="email"
+            />
           </div>
 
           <div class="mb-4">
             <label class="form-label" for="reg-password">Contraseña</label>
             <input
               id="reg-password"
+              name="password"
               type="password"
               class="form-control"
               required
+              autocomplete="new-password"
             />
             <div class="form-text">
               Mínimo 10 caracteres, 1 mayúscula y 1 número.

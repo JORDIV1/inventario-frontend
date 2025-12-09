@@ -1,0 +1,9 @@
+@import "tailwindcss";
+@plugin "daisyui";
+.like-anim {
+  transition: transform 0.15s ease-in-out;
+}
+
+.like-anim.pop {
+  transform: scale(1.25);
+}
